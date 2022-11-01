@@ -1,0 +1,54 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  become: true
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+        cache_valid_time: 86400
+
+    - name: Install prerequisites
+      apt:
+        pkg:
+          - zip
+          - dos2unix
+          - build-essential
+          - ca-certificates
+          - curl
+          - gnupg
+          - gnupg2
+          - lsb-release
+          - git
+          - tree
+          - unzip
+          - python3-pip
+          - python3-virtualenv
+        state: latest
+
+    - name: The upper limit on the number of watches that can be created per real user ID
+      include_role:
+        name: gantsign.inotify
+      vars:
+        inotify_max_user_watches: 524288
+
+    - name: Install `fnm`, `node.js` and `yarn`
+      include_role:
+        name: hurricanehrndz.fnm
+      vars:
+        fnm_nodejs_versions:
+          - v18.4.0
+        fnm_npm_global_packages:
+          - name: yarn
+
+    - name: Install SDKMAN
+      include_role:
+        name: Comcast.sdkman
+      vars:
+        sdkman_user: mjl
+        sdkman_group: mjl
+        sdkman_auto_answer: true
+        sdkman_update: true
+        sdkman_install_packages:
+          - { candidate: java, version: 18.0.1.1-open }
